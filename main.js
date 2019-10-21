@@ -50,6 +50,7 @@ serialInclude(['../lib/CGF.js',
 	'MyComponent.js',
 	'Animation.js',
 	'KeyframeAnimation.js',
+	'Keyframe.js',
 
 	main = function () {
 		// Standard application, scene and interface setup

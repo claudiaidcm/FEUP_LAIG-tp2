@@ -33,6 +33,9 @@ class KeyframeAnimation extends Animation {
     apply() {
         var transform = mat4.create();
         mat4.identity(transform);
+
+
+        fromRotationTranslationScale(transform, q, v, s)
     };
 
 };
