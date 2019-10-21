@@ -1,10 +1,11 @@
 class Animation {
-    constructor(id, scene) {
+    constructor(id, scene, time) {
         if (this.constructor === Animation) {
             throw new TypeError('Abstract class "Animation" cannot be instantiated directly.'); 
         }
         this.id = id;
         this.scene = scene;
+        this.time = time;
     };
 
     update() {
