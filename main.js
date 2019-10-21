@@ -48,6 +48,8 @@ serialInclude(['../lib/CGF.js',
 	'primitives/MyCylinder.js',
 	'primitives/MyTorus.js',
 	'MyComponent.js',
+	'Animation.js',
+	'KeyframeAnimation.js',
 
 	main = function () {
 		// Standard application, scene and interface setup
