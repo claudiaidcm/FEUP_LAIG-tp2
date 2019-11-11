@@ -688,7 +688,8 @@ class MySceneGraph {
     var grandChildren;
     var grandgrandChildren;
 
-    this.animations = [];
+    this.animations = [];  //Array Array
+    this.Kanimations = []; // KeyframeAnimation Array
 
     // Any number of animations.
     for (var i = 0; i < children.length; i++) {
@@ -748,9 +749,14 @@ class MySceneGraph {
         var aux = new Keyframe(this, instant, x_translate, y_translate, z_translate, angle_x, angle_y, angle_z, x_scale, y_scale, z_scale);
 
         animation.push(aux);
+
+
       }
+      
+      var Kanimation = new KeyframeAnimation(animationID, this.scene, animation)
 
       this.animations[animationID] = animation;
+      this.Kanimations.push(Kanimation);
     }
 
     this.log("Parsed animations");
@@ -1011,9 +1017,6 @@ class MySceneGraph {
       if (childrenIndex == -1)
         return "children's block is required in the component " + componentID;
 
-
-      var animationIndex = nodeNames.indexOf("animationref");
-
       // Transformations
       var transfs = grandChildren[transformationIndex].children;
 
@@ -1057,17 +1060,6 @@ class MySceneGraph {
               break;
           }
         }
-      }
-
-
-      // Animations
-      if (animationIndex != -1) {
-        var animationref = this.reader.getString(grandChildren[animationIndex], 'id');
-
-        if (this.animations[animationref] == null)
-          return "Animation " + animationref + "in the component " + componentID + " not found";
-
-        this.nodes[componentID].animationref = animationref;
       }
 
       // Materials
@@ -1247,6 +1239,11 @@ class MySceneGraph {
     console.log("   " + message);
   }
 
+
+
+
+
+
   /**
    * Displays the scene, processing each node, starting in the root node.
    */
@@ -1254,9 +1251,13 @@ class MySceneGraph {
     this.processNode(this.idRoot, this.nodes[this.idRoot].materials[0], this.nodes[this.idRoot].texture, this.nodes[this.idRoot].length_s, this.nodes[this.idRoot].length_t);
   }
 
+
+
+
+
   processNode(nodeID, materialP, textureP, length_sP, length_tP) {
     this.scene.pushMatrix();
-
+    var currentTime = new Date();
     var component = this.nodes[nodeID];
 
 
@@ -1317,7 +1318,7 @@ class MySceneGraph {
     material.apply();
     //===================
 
-
+    
     //CHILDREN
 
     //process component's children that are other components
@@ -1332,6 +1333,11 @@ class MySceneGraph {
 
       }
       this.primitives[component.primitives[j]].display();
+    }
+    //console.log("test");
+    for (var iAnim = 0; iAnim < this.Kanimations.length; iAnim++){
+      this.Kanimations[iAnim].update(currentTime);
+      this.Kanimations[iAnim].apply();
     }
 
     this.scene.popMatrix();
