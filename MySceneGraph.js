@@ -688,7 +688,7 @@ class MySceneGraph {
     var grandChildren;
     var grandgrandChildren;
 
-    this.animations = [];  //Array Array
+    this.animations = []; //Array Array
     this.Kanimations = []; // KeyframeAnimation Array
 
     // Any number of animations.
@@ -752,7 +752,7 @@ class MySceneGraph {
 
 
       }
-      
+
       var Kanimation = new KeyframeAnimation(animationID, this.scene, animation)
 
       this.animations[animationID] = animation;
@@ -1239,21 +1239,12 @@ class MySceneGraph {
     console.log("   " + message);
   }
 
-
-
-
-
-
   /**
    * Displays the scene, processing each node, starting in the root node.
    */
   displayScene() {
     this.processNode(this.idRoot, this.nodes[this.idRoot].materials[0], this.nodes[this.idRoot].texture, this.nodes[this.idRoot].length_s, this.nodes[this.idRoot].length_t);
   }
-
-
-
-
 
   processNode(nodeID, materialP, textureP, length_sP, length_tP) {
     this.scene.pushMatrix();
@@ -1318,7 +1309,7 @@ class MySceneGraph {
     material.apply();
     //===================
 
-    
+
     //CHILDREN
 
     //process component's children that are other components
@@ -1335,7 +1326,7 @@ class MySceneGraph {
       this.primitives[component.primitives[j]].display();
     }
     //console.log("test");
-    for (var iAnim = 0; iAnim < this.Kanimations.length; iAnim++){
+    for (var iAnim = 0; iAnim < this.Kanimations.length; iAnim++) {
       this.Kanimations[iAnim].update(currentTime);
       this.Kanimations[iAnim].apply();
     }

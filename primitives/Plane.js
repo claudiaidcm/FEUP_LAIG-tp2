@@ -2,8 +2,8 @@
  * Plane
  * @constructor
  * @param {XMLScene} scene - represents the CGFscene
- * @param {number}   npartsU - number of division of the NURBS object in the u coordinate
- * @param {number}   npartsV - number of division of the NURBS object in the v coordinate
+ * @param {number} npartsU - division in parts in the U domain
+ * @param {number} npartsV - division in parts in the V domain
  */
 
 class Plane extends CGFobject {
