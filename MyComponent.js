@@ -10,6 +10,7 @@ class MyComponent {
         this.transformationref;
         this.transformation = mat4.create();
         mat4.identity(this.transformation);
+        this.animationref;
         this.materials = [];
         this.texture;
         this.length_s = 1;
