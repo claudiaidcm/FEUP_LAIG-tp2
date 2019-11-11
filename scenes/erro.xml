@@ -133,9 +133,9 @@
   <animations>
     <animation id="teste">
       <keyframe instant="0">
-        <translate x="2" y="2" z="2"/>
-        <rotate angle_x="-90" angle_y="0" angle_z="0"/>
-        <scale x="1.5" y="1.5" z="1.5"/>
+        <translate x="0" y="0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="2" y="2" z="2"/>
       </keyframe>
     </animation>
   </animations>
@@ -170,6 +170,7 @@
       <transformation>
         <scale x="0.4" y="0.4" z="0.4"/>
       </transformation>
+      <animationref id="teste" />
       <materials>
         <material id="demoMaterial"/>
       </materials>

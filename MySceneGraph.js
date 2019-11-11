@@ -1011,6 +1011,9 @@ class MySceneGraph {
       if (childrenIndex == -1)
         return "children's block is required in the component " + componentID;
 
+
+      var animationIndex = nodeNames.indexOf("animationref");
+
       // Transformations
       var transfs = grandChildren[transformationIndex].children;
 
@@ -1054,6 +1057,17 @@ class MySceneGraph {
               break;
           }
         }
+      }
+
+
+      // Animations
+      if (animationIndex != -1) {
+        var animationref = this.reader.getString(grandChildren[animationIndex], 'id');
+
+        if (this.animations[animationref] == null)
+          return "Animation " + animationref + "in the component " + componentID + " not found";
+
+        this.nodes[componentID].animationref = animationref;
       }
 
       // Materials
