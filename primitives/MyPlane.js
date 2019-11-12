@@ -1,12 +1,12 @@
 /**
- * Plane
+ * MyPlane
  * @constructor
- * @param {XMLScene} scene - represents the CGFscene
+ * @param {XMLScene} scene - reference to MyScene object
  * @param {number} npartsU - division in parts in the U domain
  * @param {number} npartsV - division in parts in the V domain
  */
 
-class Plane extends CGFobject {
+class MyPlane extends CGFobject {
   constructor(scene, npartsU, npartsV) {
     super(scene);
     this.npartsU = npartsU;

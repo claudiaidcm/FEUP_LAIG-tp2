@@ -1,18 +1,22 @@
 /**
  * MyCylinder
  * @constructor
+ * @param {XMLScene} scene - reference to MyScene object
+ * @param {number} base - radius of the base (z=0)
+ * @param {number} top - radius of the top (z=height)
+ * @param {number} height - size in the direction of the positive z axis
+ * @param {number} slices - number of divisions around the circumference
+ * @param {number} stacks - number of divisions along the z direction
  */
 
 class MyCylinder extends CGFobject {
     constructor(scene, id, height, base, top, slices, stacks) {
         super(scene);
-
         this.height = height;
         this.base = base;
         this.top = top;
         this.slices = slices;
         this.stacks = stacks;
-
         this.initBuffers();
     };
 
@@ -30,7 +34,7 @@ class MyCylinder extends CGFobject {
 
         //diferença entre o tamanho de cada slice
         var sizeSlices = (this.top - this.base) / this.stacks;
-        
+
 
         //ciclo para cada triangulo
         for (var i = 0; i <= this.slices; ++i) {
@@ -46,7 +50,7 @@ class MyCylinder extends CGFobject {
                     (this.base + sizeSlices * j) * Math.sin(alphaAng * i),
                     j * heightStacks
                 );
-   
+
                 //desenhar o rectangulo a volta
                 if (j < this.stacks && i < this.slices) {
                     this.indices.push(
