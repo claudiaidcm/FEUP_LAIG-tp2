@@ -132,10 +132,10 @@
 
   <animations>
     <animation id="teste">
-      <keyframe instant="0">
-        <translate x="0" y="0" z="0"/>
+      <keyframe instant="20">
+        <translate x="50" y="10" z="0"/>
         <rotate angle_x="0" angle_y="0" angle_z="0"/>
-        <scale x="2" y="2" z="2"/>
+        <scale x="1" y="1" z="1"/>
       </keyframe>
     </animation>
   </animations>
@@ -162,29 +162,6 @@
     <primitive id="cheese_ball">
       <sphere radius="0.5" slices="15" stacks="15"/>
     </primitive>
-    <primitive id="plane">
-      <plane npartsU="2" npartsV="2"/>
-    </primitive>
-    <primitive id="cylinder2">
-      <cylinder2 base="0.25" top="0.25" height="8" slices="20" stacks="5"/>
-    </primitive>
-    <primitive id="patch">
-      <patch npointsU="3" npointsV="4" npartsU="20" npartsV="20">
-        <controlpoint xx="-2.0" yy="-2.0" zz="1.0"/>
-        <controlpoint xx="-2.0" yy="-1.0" zz="-2.0"/>
-        <controlpoint xx="-2.0" yy="1.0" zz="5.0"/>
-        <controlpoint xx="-2.0" yy="2.0" zz="-1.0"/>
-        <controlpoint xx="0" yy="-2.0" zz="0"/>
-        <controlpoint xx="0" yy="-1.0" zz="-1.0"/>
-        <controlpoint xx="0" yy="1.0" zz="1.5"/>
-        <controlpoint xx="0" yy="2.0" zz="0"/>
-        <controlpoint xx="2.0" yy="-2.0" zz="-1.0"/>
-        <controlpoint xx="2.0" yy="-1.0" zz="2.0"/>
-        <controlpoint xx="2.0" yy="1.0" zz="-5.0"/>
-        <controlpoint xx="2.0" yy="2.0" zz="1.0"/>
-      </patch>
-    </primitive>
-
 
   </primitives>
 
@@ -193,7 +170,7 @@
       <transformation>
         <scale x="0.4" y="0.4" z="0.4"/>
       </transformation>
-      <animationref id="teste"/>
+      <animationref id="teste" />
       <materials>
         <material id="demoMaterial"/>
       </materials>
