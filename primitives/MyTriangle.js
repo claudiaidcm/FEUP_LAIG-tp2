@@ -1,12 +1,20 @@
 /**
  * MyTriangle
  * @constructor
- * @param scene - Reference to MyScene object
- * @param x - Scale of triangle in X
- * @param y - Scale of triangle in Y
+ * @param {XMLScene} scene - reference to MyScene object
+ * @param {number} x1 - x1 coordinate
+ * @param {number} x2 - x2 coordinate
+ * @param {number} x3 - x3 coordinate
+ * @param {number} y1 - y1 coordinate
+ * @param {number} y2 - y2 coordinate
+ * @param {number} y3 - y3 coordinate
+ * @param {number} z1 - z1 coordinate
+ * @param {number} z2 - z2 coordinate
+ * @param {number} z3 - z3 coordinate
  */
+
 class MyTriangle extends CGFobject {
-	constructor(scene, id, x1, x2, x3, y1, y2, y3, z1, z2, z3) {
+	constructor(scene, x1, x2, x3, y1, y2, y3, z1, z2, z3) {
 		super(scene);
 		this.x1 = x1;
 		this.x2 = x2;
@@ -77,4 +85,3 @@ class MyTriangle extends CGFobject {
 		this.updateTexCoordsGLBuffers();
 	}
 }
-

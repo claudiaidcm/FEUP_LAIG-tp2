@@ -826,7 +826,7 @@ class MySceneGraph {
         if (!(y2 != null && !isNaN(y2) && y2 > y1))
           return "unable to parse y2 of the primitive coordinates for ID = " + primitiveId;
 
-        var rect = new MyRectangle(this.scene, primitiveId, x1, x2, y1, y2);
+        var rect = new MyRectangle(this.scene, x1, x2, y1, y2);
 
         this.primitives[primitiveId] = rect;
       } else if (primitiveType == 'cylinder') {
@@ -855,7 +855,7 @@ class MySceneGraph {
         if (!(stacks != null && !isNaN(stacks)))
           return "unable to parse stacks of the primitive coordinates for ID = " + primitiveId;
 
-        var cyl = new MyCylinder(this.scene, primitiveId, height, base, top, slices, stacks);
+        var cyl = new MyCylinder(this.scene, height, base, top, slices, stacks);
 
         this.primitives[primitiveId] = cyl;
       } else if (primitiveType == 'torus') {
@@ -879,7 +879,7 @@ class MySceneGraph {
         if (!(loops != null && !isNaN(loops)))
           return "unable to parse loops of the primitive coordinates for ID = " + primitiveId;
 
-        var tor = new MyTorus(this.scene, primitiveId, outer, inner, slices, loops);
+        var tor = new MyTorus(this.scene, outer, inner, slices, loops);
 
         this.primitives[primitiveId] = tor;
       } else if (primitiveType == 'triangle') {
@@ -928,7 +928,7 @@ class MySceneGraph {
         if (!(z3 != null && !isNaN(z3)))
           return "unable to parse z3 of the primitive coordinates for ID = " + primitiveId;
 
-        var trig = new MyTriangle(this.scene, primitiveId, x1, x2, x3, y1, y2, y3, z1, z2, z3);
+        var trig = new MyTriangle(this.scene, x1, x2, x3, y1, y2, y3, z1, z2, z3);
 
         this.primitives[primitiveId] = trig;
       } else if (primitiveType == 'sphere') {
@@ -947,7 +947,7 @@ class MySceneGraph {
         if (!(stacks != null && !isNaN(stacks) && stacks > 0))
           return "unable to parse stacks of the primitive coordinates for ID = " + primitiveId;
 
-        var sphr = new MySphere(this.scene, primitiveId, radius, slices, stacks);
+        var sphr = new MySphere(this.scene, radius, slices, stacks);
 
         this.primitives[primitiveId] = sphr;
         this.numPrimitives++;

@@ -1,12 +1,15 @@
 /**
  * MyRectangle
  * @constructor
- * @param scene - Reference to MyScene object
- * @param x - Scale of rectangle in X
- * @param y - Scale of rectangle in Y
+ * @param {XMLScene} scene - reference to MyScene object
+ * @param {number} x1 - x1 coordinate
+ * @param {number} x2 - x2 coordinate
+ * @param {number} y1 - y1 coordinate
+ * @param {number} y2 - y2 coordinate
  */
+
 class MyRectangle extends CGFobject {
-	constructor(scene, id, x1, x2, y1, y2) {
+	constructor(scene, x1, x2, y1, y2) {
 		super(scene);
 		this.x1 = x1;
 		this.x2 = x2;
@@ -71,4 +74,3 @@ class MyRectangle extends CGFobject {
 		this.updateTexCoordsGLBuffers();
 	}
 }
-

@@ -1,21 +1,25 @@
 /**
  * MySphere
  * @constructor
- * @param scene - Reference to MyScene object
+ * @param {XMLScene} scene - reference to MyScene object
+ * @param {number} radius - radius of the sphere
+ * @param {number} slices - number of divisions around axis
+ * @param {number} stacks - number of divisions between poles
  */
+
 class MySphere extends CGFobject {
-	constructor(scene, ID, radius, slices, stacks) {
+	constructor(scene, radius, slices, stacks) {
 		super(scene);
 		this.radius = radius;
 		this.slices = slices;
 		this.stacks = stacks;
 		this.initBuffers();
 	}
-	
+
 	initBuffers() {
 		var ang_perimeter = Math.PI*2/this.slices;
 		var ang_height = Math.PI/this.stacks;
-		
+
 		this.vertices = [];
 		this.indices = [];
  		this.normals = [];
@@ -25,15 +29,15 @@ class MySphere extends CGFobject {
  			for(var i = 0; i <= this.stacks; i++)
  			{
  				var temp = Math.PI-ang_height*i;
-				
+
 				this.vertices.push( Math.sin(temp)*Math.cos(j*ang_perimeter)*this.radius,
 					Math.sin(temp)*Math.sin(j*ang_perimeter)*this.radius,
 					Math.cos(temp)*this.radius );
-				
+
 				this.normals.push( Math.sin(temp) * Math.cos(j*ang_perimeter),
 					Math.sin(temp) * Math.sin(j*ang_perimeter),
 					Math.cos(temp) );
-				
+
 				this.texCoords.push( j/this.slices,
 					1 - i/this.stacks );
 
@@ -46,7 +50,7 @@ class MySphere extends CGFobject {
 				}
  			}
  		}
-		
+
 		for (var slice = 0; slice < this.slices; slice++) {
 
 			if (slice + 1 == this.slices) {
@@ -56,7 +60,7 @@ class MySphere extends CGFobject {
 				this.indices.push(0, slice + 1,slice + 2);
 			}
 		}
-		
+
 		this.primitiveType = this.scene.gl.TRIANGLES;
 		this.initGLBuffers();
 	}
@@ -71,4 +75,3 @@ class MySphere extends CGFobject {
 		this.updateTexCoordsGLBuffers();
 	}
 }
-
