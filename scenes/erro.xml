@@ -133,8 +133,8 @@
   <animations>
     <animation id="teste">
       <keyframe instant="20">
-        <translate x="50" y="10" z="0"/>
-        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <translate x="2" y="1" z="0"/>
+        <rotate angle_x="45" angle_y="0" angle_z="0"/>
         <scale x="1" y="1" z="1"/>
       </keyframe>
     </animation>

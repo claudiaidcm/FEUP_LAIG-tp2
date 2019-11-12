@@ -114,7 +114,6 @@ class KeyframeAnimation extends Animation {
 
 
 
-
     if(this.currentKeyTime > this.intervalTime) {
       this.currentKeyframe++;
     } 
@@ -140,7 +139,6 @@ class KeyframeAnimation extends Animation {
      this.scene.rotate(this.currentRotate.y * Math.PI / 180, 0, 1, 0);
      this.scene.rotate(this.currentRotate.x * Math.PI / 180, 1, 0, 0);
      this.scene.scale(this.currentScale.x, this.currentScale.y, this.currentScale.z);
-    
   };
 
 };
