@@ -21,6 +21,7 @@ class MySceneGraph {
    */
   constructor(filename, scene) {
     this.loadedOk = null;
+    this.startTime = Date.now();
 
     // Establish bidirectional references between scene and graph.
     this.scene = scene;
@@ -688,20 +689,17 @@ class MySceneGraph {
     var grandChildren;
     var grandgrandChildren;
 
-    this.animations = []; //Array Array
-    this.Kanimations = []; // KeyframeAnimation Array
+    this.animations = [];
 
     // Any number of animations.
-    for (var i = 0; i < children.length; i++) {
-      if (children[i].nodeName != "animation") {
-        this.onXMLMinorError("unknown tag <" + children[i].nodeName + ">");
+    for (var n = 0; n < children.length; n++) {
+      if (children[n].nodeName != "animation") {
+        this.onXMLMinorError("unknown tag <" + children[n].nodeName + ">");
         continue;
       }
 
-      var animation = [];
-
       // Get id of the current animation.
-      var animationID = this.reader.getString(children[i], 'id');
+      var animationID = this.reader.getString(children[n], 'id');
       if (animationID == null)
         return "no ID defined for animation";
 
@@ -709,10 +707,12 @@ class MySceneGraph {
       if (this.animations[animationID] != null)
         return "ID must be unique for each animation (conflict: ID = " + animationID + ")";
 
-      grandChildren = children[i].children;
+      grandChildren = children[n].children;
 
       if (grandChildren.length < 1)
         return "There must be at least one keyframe in the animation " + animationID;
+
+      var keyframes = [];
 
       for (var i = 0; i < grandChildren.length; i++) {
         // Validate the animation type
@@ -730,33 +730,34 @@ class MySceneGraph {
         else if (grandgrandChildren[0].nodeName != "translate" || grandgrandChildren[1].nodeName != "rotate" || grandgrandChildren[2].nodeName != "scale")
           return "Elements of the keyframe are out of order.";
 
+        //Matrix that saves the final position declared in the key frame
+        var keyFrameMatrix = mat4.create();
 
+        //translate
         var translate = grandgrandChildren[0];
-        var x_translate = this.reader.getFloat(translate, 'x');
-        var y_translate = this.reader.getFloat(translate, 'y');
-        var z_translate = this.reader.getFloat(translate, 'z');
+        var trans_vec = this.parseCoordinates3D(translate);
+        keyFrameMatrix = mat4.translate(keyFrameMatrix, keyFrameMatrix, trans_vec);
 
+        //rotate
         var rotate = grandgrandChildren[1];
-        var angle_x = this.reader.getFloat(rotate, 'angle_x');
+        var angle_x = this.reader.getFloat(rotate, 'angle_x')
+        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_x * DEGREE_TO_RAD, this.axisCoords['x']);
         var angle_y = this.reader.getFloat(rotate, 'angle_y');
+        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_y * DEGREE_TO_RAD, this.axisCoords['y']);
         var angle_z = this.reader.getFloat(rotate, 'angle_z');
+        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_y * DEGREE_TO_RAD, this.axisCoords['z']);
 
+        //scale
         var scale = grandgrandChildren[2];
-        var x_scale = this.reader.getFloat(scale, 'x');
-        var y_scale = this.reader.getFloat(scale, 'y');
-        var z_scale = this.reader.getFloat(scale, 'z');
+        var sca_vec = this.parseCoordinates3D(scale);
+        keyFrameMatrix = mat4.scale(keyFrameMatrix, keyFrameMatrix, sca_vec);
 
-        var aux = new Keyframe(this, instant, x_translate, y_translate, z_translate, angle_x, angle_y, angle_z, x_scale, y_scale, z_scale);
-
-        animation.push(aux);
-
-
+        var keyf = new Keyframe(this, instant, keyFrameMatrix);
+        keyframes.push(keyf);
       }
 
-      var Kanimation = new KeyframeAnimation(animationID, this.scene, animation)
-
-      this.animations[animationID] = animation;
-      this.Kanimations.push(Kanimation);
+      var keyFrameAnim = new KeyframeAnimation(animationID, this.scene, keyframes);
+      this.animations[animationID] = keyFrameAnim;
     }
 
     this.log("Parsed animations");
@@ -1062,6 +1063,19 @@ class MySceneGraph {
         }
       }
 
+      // Animations
+      var animationrefIndex = nodeNames.indexOf("animationref");
+      var animationref;
+      if (animationrefIndex != -1) {
+        animationref = this.reader.getString(grandChildren[animationrefIndex], 'id');
+        if (this.animations[animationref] == null)
+          return "Animation with id " + animationref + " in the component " + componentID + " not found";
+        this.nodes[componentID].animation = this.animations[animationref];
+      } else {
+        this.nodes[componentID].animation = null;
+      }
+
+
       // Materials
       var grandgrandChildren = grandChildren[materialsIndex].children;
       var comp_materials = [];
@@ -1248,19 +1262,33 @@ class MySceneGraph {
 
   processNode(nodeID, materialP, textureP, length_sP, length_tP) {
     this.scene.pushMatrix();
-    var currentTime = new Date();
+    var currentTime = Date.now();
     var component = this.nodes[nodeID];
 
 
     //TRANSFORMATION
-
     //apply component's transformation
     this.scene.multMatrix(component.transformation);
     //===================
 
+    // ANIMATION
+    if (component.animation != null) {
+      //updates only if the animation is not already complete
+      var timePassed = currentTime - this.startTime;
+      var totalAnimTime = component.animation.keyframes[component.animation.keyframes.length - 1].instant;
+
+      if (timePassed <= (totalAnimTime * 1000)) {
+        component.animation.update(currentTime - this.startTime);
+      }
+      else {
+        var lastAnim = component.animation.keyframes[component.animation.keyframes.length - 1].keyFrameMatrix;
+        component.animation.apply(lastAnim);
+      }
+    }
+    //===================
+
 
     //MATERIALS
-
     var material;
     var arrayMat = [];
     var numMaterial = this.scene.numMaterial;
@@ -1281,7 +1309,6 @@ class MySceneGraph {
 
 
     //TEXTURES
-
     var texture;
     var length_s;
     var length_t;
@@ -1309,19 +1336,10 @@ class MySceneGraph {
     material.apply();
     //===================
 
-
     //CHILDREN
-
     //process component's children that are other components
     for (var i = 0; i < component.children.length; i++) {
       this.processNode(component.children[i], material, texture, length_s, length_t);
-    }
-
-    for (var iAnim = 0; iAnim < this.Kanimations.length; iAnim++) {
-      this.Kanimations[iAnim].update(currentTime);
-      if(this.Kanimations[iAnim] != undefined){
-            this.Kanimations[iAnim].apply();
-        }
     }
 
     //display component's children that are primitives

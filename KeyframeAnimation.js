@@ -1,144 +1,130 @@
+/**
+ * KeyframeAnimation
+ * @constructor
+ * @param {string} id - id of the animation
+ * @param {XMLScene} scene - reference to MyScene object
+ * @param {array} keyframes - array with all the keyframes if the aniamtion
+ */
+
 class KeyframeAnimation extends Animation {
-  constructor(id, scene, animations) {
+  constructor(id, scene, keyframes) {
     super(scene);
     this.id = id;
     this.scene = scene;
-    this.animations = animations;
-    this.instants = [];
-    this.maxTime = animations[animations.length-1].time;
-    this.currentKeyframe = 0;
-    this.oldTime = -1;
-    this.timegap = 0;
-    this.firstTime = -1;
-    this.matrix = mat4.create();
-
-    this.currentTime = 0;
-    this.currentKeyTime = 0;
-    this.instantTime = 0;
-    this.currentTranslate = {x:0.0, y:0.0, z:0.0};
-    this.currentRotate = {x:0.0, y:0.0, z:0.0};
-    this.currentScale = {x:1.0, y:1.0, z:1.0};
-
-    this.trans_X = 0;
-    this.trans_Y = 0;
-    this.trans_Z = 0;
-    this.rot_X = 0;
-    this.rot_Y = 0;
-    this.rot_Z = 0;
-    this.scale_X = 1;
-    this.scale_Y = 1;
-    this.scale_Z = 1;
-
-
-    this.testi = 0;
-
-    for (var i = 0; i < this.animations.length; i++) {
-       this.instants.push(animations[i].time);
-    }
-
+    this.keyframes = keyframes;
+    this.initialPos;
   };
 
-  update(deltaTime) {
-    mat4.identity(this.matrix);
-    
-   if(this.oldTime==-1){
-     this.oldTime=deltaTime;
-     this.firstTime = deltaTime;
-     return;
-   }
-    
-    this.currentTime = deltaTime - this.firstTime;
-    this.timegap = this.currentTime - this.lastTime;
-    
-    
-    if(this.currentKeyframe == 0) {
-      this.currentKeyTime = (this.currentTime)/1000
-    }else{
-      this.currentKeyTime = this.currentTime/1000-this.instants[this.currentKeyframe-1]
-    } 
-    
-    this.lastTime=deltaTime;
-    
-    
-    this.testi++;
-     if (this.testi % 19430 == 0) {
-      console.log("Updating Animation " + this.id + ". Current Keyframe: " + this.currentKeyframe + ". It's been " + this.currentTime/1000 + " seconds since the program has started");
-      console.log("Current Keytime " + this.currentKeyTime + ". Current Interval: " + this.intervalTime + ". Instant[currentKeyframe] = " + this.instants[this.currentKeyframe] + ".");
-      console.log("Trans_X " + this.trans_X + ". Trans_Y: " + this.trans_Y + ". Trans_Z: " + this.trans_Z + ".");
-      console.log("currentTranslate X " + this.currentTranslate.x + ". currentTranslate Y: " + this.currentTranslate.y + ". currentTranslate Z: " + this.currentTranslate.z + ".");
+  update(currentTime) {
+    var animMatrixIndex = this.checkPositionInAnim(currentTime / 1000); //get index of animMatrix
+    var animMatrixF = this.keyframes[animMatrixIndex].keyFrameMatrix; // matrix stored in the current keyframe
+    var animMatrixI = mat4.create(); //matrix of the previous keyframe
+    var deltaTime; //interval of time in which the animation should occur
+
+    // sets deltaTime and animMatrixI depending on each animation we are in
+    if (animMatrixIndex > 0) {
+      deltaTime = (this.keyframes[animMatrixIndex].instant - this.keyframes[animMatrixIndex - 1].instant);
+      animMatrixI = this.keyframes[animMatrixIndex - 1].keyFrameMatrix;
     }
-    
-    if(this.currentKeyframe == this.animations.length) return;
+    else {
+      deltaTime = this.keyframes[animMatrixIndex].instant;
+      mat4.identity(animMatrixI);
+    }
 
-   if(this.currentKeyframe > 0) {
-              this.intervalTime = this.instants[this.currentKeyframe] - this.instants[this.currentKeyframe-1]
-              this.trans_X = this.animations[this.currentKeyframe].trans_X - this.animations[this.currentKeyframe - 1].trans_X;
-              this.trans_Y = this.animations[this.currentKeyframe].trans_Y - this.animations[this.currentKeyframe - 1].trans_Y;
-              this.trans_Z = this.animations[this.currentKeyframe].trans_Z - this.animations[this.currentKeyframe - 1].trans_Z;
-              this.rot_X = this.animations[this.currentKeyframe].rot_X - this.animations[this.currentKeyframe - 1].rot_X;
-              this.rot_Y = this.animations[this.currentKeyframe].rot_Y - this.animations[this.currentKeyframe - 1].rot_Y;
-              this.rot_Z = this.animations[this.currentKeyframe].rot_Z - this.animations[this.currentKeyframe - 1].rot_Z;
-              //this.scale_X = this.animations[this.currentKeyframe].scale_X - this.animations[this.currentKeyframe - 1].scale_X;
-              //this.scale_Y = this.animations[this.currentKeyframe].scale_Y - this.animations[this.currentKeyframe - 1].scale_Y;
-              //this.scale_Z = this.animations[this.currentKeyframe].scale_Z - this.animations[this.currentKeyframe - 1].scale_Z;
-          }
-          else {
-              this.intervalTime = this.instants[this.currentKeyframe];
-              this.trans_X = this.animations[this.currentKeyframe].trans_X;
-              this.trans_Y = this.animations[this.currentKeyframe].trans_Y;
-              this.trans_Z = this.animations[this.currentKeyframe].trans_Z;
-              this.rot_X = this.animations[this.currentKeyframe].rot_X;
-              this.rot_Y = this.animations[this.currentKeyframe].rot_Y;
-              this.rot_Z = this.animations[this.currentKeyframe].rot_Z;
-              //this.scale_X = this.animations[this.currentKeyframe].scale_X;
-              //this.scale_Y = this.animations[this.currentKeyframe].scale_Y;
-              //this.scale_Z = this.animations[this.currentKeyframe]scale_Z;
-          }
+    //difference between the previous and the current animMatrix
+    var diffMat = mat4.create();
+    this.sub(diffMat, animMatrixF, animMatrixI);
 
+    //amount to add to change the matrices
+    var deltaMat = mat4.create();
+    this.mult(deltaMat, diffMat, 1/deltaTime);
 
+    //calculates the amount to add at the current time
+    var aux = mat4.create();
+    this.mult(aux, deltaMat, currentTime/1000);
 
-          if(this.currentTime/1000 <= this.instants[this.currentKeyframe]) {
-              
-              this.currentTranslate.x = (this.trans_X / this.intervalTime) * this.currentKeyTime;
-              this.currentTranslate.y = (this.trans_Y / this.intervalTime) * this.currentKeyTime;
-              this.currentTranslate.z = (this.trans_Z / this.intervalTime) * this.currentKeyTime;
+    //adds the amount calculated above to the matrix to apply
+    var matToApply = mat4.create();
+    this.add(matToApply, animMatrixI, aux);
 
-              this.currentRotate.x = (this.rot_X / this.intervalTime) * this.currentKeyTime;
-              this.currentRotate.y = (this.rot_Y / this.intervalTime) * this.currentKeyTime;
-              this.currentRotate.z = (this.rot_Z / this.intervalTime) * this.currentKeyTime;
-
-             // this.currentScale.x *= this.currentKeyTime;
-             // this.currentScale.y *= this.currentKeyTime;
-             // this.currentScale.z *= this.currentKeyTime;
-          }
-
-
-
-    if(this.currentKeyTime > this.intervalTime) {
-      this.currentKeyframe++;
-    } 
-   
-
+    this.apply(matToApply);
   };
 
-  apply() {
-    var transform = mat4.create();
-    mat4.identity(transform);
-    
-    //Apply Transformation Matrix(s)
-    //console.log("Applying Animation " + this.id);
-    //if(this.currentKeyframe == 0) {
-      //position = keyframe[currentKeyframe-1] + (this.currentTime/(1000*instant[this.currentKeyframe-1])) * keyframe[this.currentKeyframe];
-    //} else {
-      //position = keyframe[currentKeyframe-1] + (this.currentTime/(1000*instant[this.currentKeyframe-1])) * keyframe[this.currentKeyframe];
-    //}
+  apply(anim_matrix) {
+    this.scene.multMatrix(anim_matrix);
+  };
 
+  checkPositionInAnim(time) {
+    for (var i = 0; i < this.keyframes.length; i++) {
+      if (time <= this.keyframes[i].instant)
+        return i;
+    }
+  }
 
-     this.scene.translate(this.currentTranslate.x, this.currentTranslate.y, this.currentTranslate.z);
-     this.scene.rotate(this.currentRotate.z * Math.PI / 180, 0, 0, 1);
-     this.scene.rotate(this.currentRotate.y * Math.PI / 180, 0, 1, 0);
-     this.scene.rotate(this.currentRotate.x * Math.PI / 180, 1, 0, 0);
-     this.scene.scale(this.currentScale.x, this.currentScale.y, this.currentScale.z);
+  //Adds two matrices
+  add(out, a, b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
+    out[4] = a[4] + b[4];
+    out[5] = a[5] + b[5];
+    out[6] = a[6] + b[6];
+    out[7] = a[7] + b[7];
+    out[8] = a[8] + b[8];
+    out[9] = a[9] + b[9];
+    out[10] = a[10] + b[10];
+    out[11] = a[11] + b[11];
+    out[12] = a[12] + b[12];
+    out[13] = a[13] + b[13];
+    out[14] = a[14] + b[14];
+    out[15] = a[15] + b[15];
+
+    return out;
+  };
+
+  //Subtracts two matrices
+  sub(out, a, b) {
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    out[2] = a[2] - b[2];
+    out[3] = a[3] - b[3];
+    out[4] = a[4] - b[4];
+    out[5] = a[5] - b[5];
+    out[6] = a[6] - b[6];
+    out[7] = a[7] - b[7];
+    out[8] = a[8] - b[8];
+    out[9] = a[9] - b[9];
+    out[10] = a[10] - b[10];
+    out[11] = a[11] - b[11];
+    out[12] = a[12] - b[12];
+    out[13] = a[13] - b[13];
+    out[14] = a[14] - b[14];
+    out[15] = a[15] - b[15];
+
+    return out;
+  };
+
+  //Multiplies a matrix by a scalar val4
+  mult(out, a, value) {
+    out[0] = a[0] * value;
+    out[1] = a[1] * value;
+    out[2] = a[2] * value;
+    out[3] = a[3] * value;
+    out[4] = a[4] * value;
+    out[5] = a[5] * value;
+    out[6] = a[6] * value;
+    out[7] = a[7] * value;
+    out[8] = a[8] * value;
+    out[9] = a[9] * value;
+    out[10] = a[10] * value;
+    out[11] = a[11] * value;
+    out[12] = a[12] * value;
+    out[13] = a[13] * value;
+    out[14] = a[14] * value;
+    out[15] = a[15] * value;
+
+    return out;
   };
 
 };

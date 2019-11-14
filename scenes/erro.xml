@@ -131,10 +131,10 @@
   </transformations>
 
   <animations>
-    <animation id="teste">
-      <keyframe instant="20">
-        <translate x="2" y="1" z="0"/>
-        <rotate angle_x="45" angle_y="0" angle_z="0"/>
+    <animation id="teste1">
+      <keyframe instant="2">
+        <translate x="0" y="2" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
         <scale x="1" y="1" z="1"/>
       </keyframe>
     </animation>
@@ -162,7 +162,6 @@
     <primitive id="cheese_ball">
       <sphere radius="0.5" slices="15" stacks="15"/>
     </primitive>
-
   </primitives>
 
   <components>
@@ -170,7 +169,7 @@
       <transformation>
         <scale x="0.4" y="0.4" z="0.4"/>
       </transformation>
-      <animationref id="teste" />
+      <animationref id="teste1" />
       <materials>
         <material id="demoMaterial"/>
       </materials>

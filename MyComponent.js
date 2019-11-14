@@ -1,7 +1,9 @@
 /**
-* MyComponent class
-* @constructor
-*/
+  * MyComponent class
+  * @constructor
+  * @param {string} id - id of the component
+  * @param {XMLScene} graph - reference to MyScene object
+  */
 
 class MyComponent {
     constructor(graph, id) {
@@ -10,7 +12,7 @@ class MyComponent {
         this.transformationref;
         this.transformation = mat4.create();
         mat4.identity(this.transformation);
-        this.animationref;
+        this.animation;
         this.materials = [];
         this.texture;
         this.length_s = 1;
