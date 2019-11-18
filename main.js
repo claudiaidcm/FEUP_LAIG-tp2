@@ -43,6 +43,7 @@ serialInclude(['../lib/CGF.js',
 	'MySceneGraph.js',
 	'MyInterface.js',
 	'primitives/MyRectangle.js',
+	'primitives/MyReverseRectangle.js',
 	'primitives/MyTriangle.js',
 	'primitives/MySphere.js',
 	'primitives/MyCylinder.js',
@@ -54,6 +55,9 @@ serialInclude(['../lib/CGF.js',
 	'Animation.js',
 	'KeyframeAnimation.js',
 	'Keyframe.js',
+	'MySecurityCamera.js',
+	'MySecurityCamera.vert',
+	'MySecurityCamera.frag',
 
 
 	main = function () {
