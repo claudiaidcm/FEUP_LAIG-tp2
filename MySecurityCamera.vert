@@ -4,6 +4,7 @@ precision highp float;
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexNormal;
 attribute vec2 aTextureCoord;
+uniform float timeS;
 
 varying vec2 vTextureCoord;
 varying vec3 vertex;

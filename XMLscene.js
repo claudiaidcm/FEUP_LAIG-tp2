@@ -18,6 +18,7 @@ class XMLscene extends CGFscene {
         this.camera;
         this.securitycamera;
         this.numMaterial = 0;
+        this.firstTime = Date.now();
 
 
 
@@ -54,6 +55,13 @@ class XMLscene extends CGFscene {
     initCameras() {
         this.camera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(15, 15, 15), vec3.fromValues(0, 0, 0));
         this.securitycamera = this.camera;
+    }
+
+    update(){
+        let currentt = Date.now();
+        let t = currentt-this.firstTime;
+        let timeFactor = t / 100 % 1000;
+        this.securityCamera.updateTime(timeFactor);
     }
 
 
