@@ -714,15 +714,15 @@ class MySceneGraph {
 
       var keyframes = [];
 
-      for (var i = 0; i < grandChildren.length; i++) {
+      for (var x = 0; x < grandChildren.length; x++) {
         // Validate the animation type
-        if (grandChildren[i].nodeName != 'keyframe') {
+        if (grandChildren[x].nodeName != 'keyframe') {
           return "The animation type must be keyframe."
         }
 
-        var instant = this.reader.getFloat(grandChildren[i], 'instant');
+        var instant = this.reader.getFloat(grandChildren[x], 'instant');
 
-        grandgrandChildren = grandChildren[i].children;
+        grandgrandChildren = grandChildren[x].children;
 
         //every keyframe has 3 elements in a specific order: translate, rotate and scale
         if (grandgrandChildren.length != 3)
@@ -730,29 +730,26 @@ class MySceneGraph {
         else if (grandgrandChildren[0].nodeName != "translate" || grandgrandChildren[1].nodeName != "rotate" || grandgrandChildren[2].nodeName != "scale")
           return "Elements of the keyframe are out of order.";
 
-        //Matrix that saves the final position declared in the key frame
-        var keyFrameMatrix = mat4.create();
 
         //translate
         var translate = grandgrandChildren[0];
         var trans_vec = this.parseCoordinates3D(translate);
-        keyFrameMatrix = mat4.translate(keyFrameMatrix, keyFrameMatrix, trans_vec);
 
         //rotate
         var rotate = grandgrandChildren[1];
         var angle_x = this.reader.getFloat(rotate, 'angle_x')
-        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_x * DEGREE_TO_RAD, this.axisCoords['x']);
         var angle_y = this.reader.getFloat(rotate, 'angle_y');
-        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_y * DEGREE_TO_RAD, this.axisCoords['y']);
         var angle_z = this.reader.getFloat(rotate, 'angle_z');
-        keyFrameMatrix = mat4.rotate(keyFrameMatrix, keyFrameMatrix, angle_y * DEGREE_TO_RAD, this.axisCoords['z']);
+        var rot_vec = vec3.fromValues(angle_x, angle_y, angle_z);
 
         //scale
         var scale = grandgrandChildren[2];
         var sca_vec = this.parseCoordinates3D(scale);
-        keyFrameMatrix = mat4.scale(keyFrameMatrix, keyFrameMatrix, sca_vec);
 
-        var keyf = new Keyframe(this, instant, keyFrameMatrix);
+        var keyFrameTransfs = [];
+        keyFrameTransfs.push(...[trans_vec, rot_vec, sca_vec]);
+       
+        var keyf = new Keyframe(this, instant, keyFrameTransfs);
         keyframes.push(keyf);
       }
 
@@ -1070,7 +1067,7 @@ class MySceneGraph {
         animationref = this.reader.getString(grandChildren[animationrefIndex], 'id');
         if (this.animations[animationref] == null)
           return "Animation with id " + animationref + " in the component " + componentID + " not found";
-        this.nodes[componentID].animation = this.animations[animationref];
+        this.nodes[componentID].animation = animationref;
       } else {
         this.nodes[componentID].animation = null;
       }
@@ -1262,7 +1259,6 @@ class MySceneGraph {
 
   processNode(nodeID, materialP, textureP, length_sP, length_tP) {
     this.scene.pushMatrix();
-    var currentTime = Date.now();
     var component = this.nodes[nodeID];
 
 
@@ -1273,17 +1269,7 @@ class MySceneGraph {
 
     // ANIMATION
     if (component.animation != null) {
-      //updates only if the animation is not already complete
-      var timePassed = currentTime - this.startTime;
-      var totalAnimTime = component.animation.keyframes[component.animation.keyframes.length - 1].instant;
-
-      if (timePassed <= (totalAnimTime * 1000)) {
-        component.animation.update(currentTime - this.startTime);
-      }
-      else {
-        var lastAnim = component.animation.keyframes[component.animation.keyframes.length - 1].keyFrameMatrix;
-        component.animation.apply(lastAnim);
-      }
+      this.animations[component.animation].apply();
     }
     //===================
 

@@ -6,52 +6,93 @@
  * @param {array} keyframes - array with all the keyframes if the aniamtion
  */
 
+var DEGREE_TO_RAD = Math.PI / 180;
+
 class KeyframeAnimation extends Animation {
   constructor(id, scene, keyframes) {
     super(scene);
     this.id = id;
     this.scene = scene;
     this.keyframes = keyframes;
-    this.initialPos;
+    this.transVecApp;
+    this.rotVecApp;
+    this.scaVecApp;
+    this.maxTime = this.keyframes[this.keyframes.length - 1].instant;
   };
 
   update(currentTime) {
+    if ((currentTime / 1000) > this.maxTime)
+      return;
+
     var animMatrixIndex = this.checkPositionInAnim(currentTime / 1000); //get index of animMatrix
-    var animMatrixF = this.keyframes[animMatrixIndex].keyFrameMatrix; // matrix stored in the current keyframe
-    var animMatrixI = mat4.create(); //matrix of the previous keyframe
+    var keyFrameF = this.keyframes[animMatrixIndex].keyFrameTransfs;
+    var instantF = this.keyframes[animMatrixIndex].instant;
+    var keyFrameI = [];
+    var instantI;
     var deltaTime; //interval of time in which the animation should occur
 
     // sets deltaTime and animMatrixI depending on each animation we are in
     if (animMatrixIndex > 0) {
-      deltaTime = (this.keyframes[animMatrixIndex].instant - this.keyframes[animMatrixIndex - 1].instant);
-      animMatrixI = this.keyframes[animMatrixIndex - 1].keyFrameMatrix;
+      instantI = this.keyframes[animMatrixIndex - 1].instant
+      keyFrameI = this.keyframes[animMatrixIndex - 1].keyFrameTransfs;
     }
     else {
-      deltaTime = this.keyframes[animMatrixIndex].instant;
-      mat4.identity(animMatrixI);
+      instantI = 0;
+      keyFrameI.push(...[vec3.fromValues(0, 0, 0), vec3.fromValues(0, 0, 0), vec3.fromValues(1, 1, 1)]);
     }
 
-    //difference between the previous and the current animMatrix
-    var diffMat = mat4.create();
-    this.sub(diffMat, animMatrixF, animMatrixI);
+    // percentage of time passed interpolated between the initial keyframe and the final keyframe 
+    var percentageTime = ((currentTime / 1000) - instantI) / (instantF - instantI);
 
-    //amount to add to change the matrices
-    var deltaMat = mat4.create();
-    this.mult(deltaMat, diffMat, 1/deltaTime);
+    // TRANSLATE
+    var transVecI = keyFrameI[0];
+    var transVecF = keyFrameF[0];
 
-    //calculates the amount to add at the current time
-    var aux = mat4.create();
-    this.mult(aux, deltaMat, currentTime/1000);
+    var trans_x = transVecI[0] + percentageTime * (transVecF[0] - transVecI[0]);
+    var trans_y = transVecI[1] + percentageTime * (transVecF[1] - transVecI[1]);
+    var trans_z = transVecI[2] + percentageTime * (transVecF[2] - transVecI[2]);
 
-    //adds the amount calculated above to the matrix to apply
-    var matToApply = mat4.create();
-    this.add(matToApply, animMatrixI, aux);
+    this.transVecApp = vec3.fromValues(trans_x, trans_y, trans_z);
 
-    this.apply(matToApply);
+
+    // ROTATE
+
+    var rotVecI = keyFrameI[1];
+    var rotVecF = keyFrameF[1];
+
+    var rot_x = rotVecI[0] + percentageTime * (rotVecF[0] - rotVecI[0]);
+    var rot_y = rotVecI[1] + percentageTime * (rotVecF[1] - rotVecI[1]);
+    var rot_z = rotVecI[2] + percentageTime * (rotVecF[2] - rotVecI[2]);
+
+    this.rotVecApp = vec3.fromValues(rot_x, rot_y, rot_z);
+
+
+    // SCALE
+
+    var scaVecI = keyFrameI[2];
+    var scaVecF = keyFrameF[2];
+
+    var sca_x = scaVecI[0] + percentageTime * (scaVecF[0] - scaVecI[0]);
+    var sca_y = scaVecI[1] + percentageTime * (scaVecF[1] - scaVecI[1]);
+    var sca_z = scaVecI[2] + percentageTime * (scaVecF[2] - scaVecI[2]);
+
+    this.scaVecApp = vec3.fromValues(sca_x, sca_y, sca_z);
+
+
   };
 
-  apply(anim_matrix) {
-    this.scene.multMatrix(anim_matrix);
+  apply() {
+    this.matToApply = mat4.create();
+    
+    mat4.translate(this.matToApply, this.matToApply, this.transVecApp);
+
+    mat4.rotateX(this.matToApply, this.matToApply, this.rotVecApp[0] * DEGREE_TO_RAD);
+    mat4.rotateY(this.matToApply, this.matToApply, this.rotVecApp[1] * DEGREE_TO_RAD);
+    mat4.rotateZ(this.matToApply, this.matToApply, this.rotVecApp[2] * DEGREE_TO_RAD);
+        
+    mat4.scale(this.matToApply, this.matToApply, this.scaVecApp);
+    
+    this.scene.multMatrix(this.matToApply);
   };
 
   checkPositionInAnim(time) {
@@ -60,71 +101,4 @@ class KeyframeAnimation extends Animation {
         return i;
     }
   }
-
-  //Adds two matrices
-  add(out, a, b) {
-    out[0] = a[0] + b[0];
-    out[1] = a[1] + b[1];
-    out[2] = a[2] + b[2];
-    out[3] = a[3] + b[3];
-    out[4] = a[4] + b[4];
-    out[5] = a[5] + b[5];
-    out[6] = a[6] + b[6];
-    out[7] = a[7] + b[7];
-    out[8] = a[8] + b[8];
-    out[9] = a[9] + b[9];
-    out[10] = a[10] + b[10];
-    out[11] = a[11] + b[11];
-    out[12] = a[12] + b[12];
-    out[13] = a[13] + b[13];
-    out[14] = a[14] + b[14];
-    out[15] = a[15] + b[15];
-
-    return out;
-  };
-
-  //Subtracts two matrices
-  sub(out, a, b) {
-    out[0] = a[0] - b[0];
-    out[1] = a[1] - b[1];
-    out[2] = a[2] - b[2];
-    out[3] = a[3] - b[3];
-    out[4] = a[4] - b[4];
-    out[5] = a[5] - b[5];
-    out[6] = a[6] - b[6];
-    out[7] = a[7] - b[7];
-    out[8] = a[8] - b[8];
-    out[9] = a[9] - b[9];
-    out[10] = a[10] - b[10];
-    out[11] = a[11] - b[11];
-    out[12] = a[12] - b[12];
-    out[13] = a[13] - b[13];
-    out[14] = a[14] - b[14];
-    out[15] = a[15] - b[15];
-
-    return out;
-  };
-
-  //Multiplies a matrix by a scalar val4
-  mult(out, a, value) {
-    out[0] = a[0] * value;
-    out[1] = a[1] * value;
-    out[2] = a[2] * value;
-    out[3] = a[3] * value;
-    out[4] = a[4] * value;
-    out[5] = a[5] * value;
-    out[6] = a[6] * value;
-    out[7] = a[7] * value;
-    out[8] = a[8] * value;
-    out[9] = a[9] * value;
-    out[10] = a[10] * value;
-    out[11] = a[11] * value;
-    out[12] = a[12] * value;
-    out[13] = a[13] * value;
-    out[14] = a[14] * value;
-    out[15] = a[15] * value;
-
-    return out;
-  };
-
 };

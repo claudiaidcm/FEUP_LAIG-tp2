@@ -7,9 +7,9 @@
  */
 
 class Keyframe {
-  constructor(scene, instant, keyFrameMatrix) {
+  constructor(scene, instant, keyFrameTransfs) {
     this.scene = scene;
     this.instant = instant;
-    this.keyFrameMatrix = keyFrameMatrix;
+    this.keyFrameTransfs = keyFrameTransfs;
   };
 }

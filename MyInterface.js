@@ -55,9 +55,6 @@ class MyInterface extends CGFinterface {
         this.interCamera = this.gui.add(this.scene, 'camera', id).name("Camera").onChange(
             value => scene.updateCamera(value));
 
-        this.secondaryCamera = this.gui.add(this.scene, 'securitycamera', id).name("Security Camera").onChange(
-            value => scene.updateSecurityCamera(value));
-
         //set the default view
         scene.updateCamera(scene.graph.defaultView);
     }
