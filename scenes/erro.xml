@@ -133,19 +133,26 @@
   <animations>
     <animation id="teste1">
       <keyframe instant="2">
-        <translate x="0" y="0" z="0"/>
+        <translate x="0" y="5.0" z="0"/>
         <rotate angle_x="0" angle_y="0" angle_z="0"/>
         <scale x="1" y="1" z="1"/>
       </keyframe>
-	  <keyframe instant="5">
-        <translate x="0" y="0" z="0"/>
+      <keyframe instant="4">
+        <translate x="0" y="-5.0" z="0"/>
+        <rotate angle_x="45" angle_y="0" angle_z="0"/>
+        <scale x="0.5" y="0.5" z="0.5"/>
+      </keyframe>
+    </animation>
+    <animation id="teste2">
+      <keyframe instant="2">
+        <translate x="0" y="5.0" z="0"/>
         <rotate angle_x="0" angle_y="0" angle_z="0"/>
         <scale x="1" y="1" z="1"/>
       </keyframe>
-	  <keyframe instant="10">
-        <translate x="0" y="0" z="0"/>
-        <rotate angle_x="0" angle_y="0" angle_z="0"/>
-        <scale x="1" y="1" z="1"/>
+      <keyframe instant="4">
+        <translate x="0" y="-5.0" z="0"/>
+        <rotate angle_x="45" angle_y="0" angle_z="0"/>
+        <scale x="0.5" y="0.5" z="0.5"/>
       </keyframe>
     </animation>
   </animations>
@@ -179,7 +186,7 @@
       <transformation>
         <scale x="0.4" y="0.4" z="0.4"/>
       </transformation>
-      <animationref id="teste1" />
+     <animationref id="teste1" />
       <materials>
         <material id="demoMaterial"/>
       </materials>
@@ -557,6 +564,7 @@
         <translate x="8" y="0" z="-4"/>
         <rotate axis="x" angle="-90"/>
       </transformation>
+      <animationref id = "teste2"/>
       <materials>
         <material id="plastic"/>
       </materials>
