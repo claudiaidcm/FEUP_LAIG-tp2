@@ -26,6 +26,12 @@
       <from x="5" y="5" z="20"/>
       <to x="5" y="5" z="0"/>
     </ortho>
+
+    <ortho id="vinheta" near="0.1" far="40" left="-9" right="-1" top="-1" bottom="-5">
+      <from x="5" y="30" z="10"/>
+      <to x="5" y="5" z="0"/>
+    </ortho> 
+
   </views>
 
   <globals>
@@ -84,6 +90,9 @@
     <texture id="cup" file="scenes/images/cup.png"/>
     <texture id="straw" file="scenes/images/straw.png"/>
     <texture id="napkin" file="scenes/images/napkin.png"/>
+    <texture id="table" file="scenes/images/tableTop.png"/>
+    <texture id="receipt" file="scenes/images/receipt.png"/>
+    <texture id="floor" file="scenes/images/grass.png"/>
   </textures>
 
   <materials>
@@ -131,7 +140,7 @@
   </transformations>
 
   <animations>
-    <animation id="teste1">
+    <animation id="full">
       <keyframe instant="2">
         <translate x="0" y="5.0" z="0"/>
         <rotate angle_x="0" angle_y="0" angle_z="0"/>
@@ -141,18 +150,60 @@
         <translate x="0" y="-5.0" z="0"/>
         <rotate angle_x="45" angle_y="0" angle_z="0"/>
         <scale x="0.5" y="0.5" z="0.5"/>
+      </keyframe>
+      <keyframe instant="6">
+        <translate x="0" y="0.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
       </keyframe>
     </animation>
-    <animation id="teste2">
-      <keyframe instant="2">
+    <animation id="receipt">
+      <keyframe instant="6">
+        <translate x="0" y="0.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+      <keyframe instant="7">
+        <translate x="-30.0" y="0.0" z="10"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+      <keyframe instant="8">
+        <translate x="-50.0" y="-16.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+      <keyframe instant="10">
+        <translate x="-50.0" y="-16.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+      <keyframe instant="12">
+        <translate x="0" y="0.0" z="2.2"/>
+        <rotate angle_x="-45" angle_y="0" angle_z="0"/>
+        <scale x="0.5" y="0.5" z="0.5"/>
+      </keyframe>
+      <keyframe instant="14">
+        <translate x="0" y="0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+    </animation>
+    <animation id="many">
+      <keyframe instant="14">
+        <translate x="0" y="0.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
+      </keyframe>
+      <keyframe instant="18">
         <translate x="0" y="5.0" z="0"/>
         <rotate angle_x="0" angle_y="0" angle_z="0"/>
         <scale x="1" y="1" z="1"/>
       </keyframe>
-      <keyframe instant="4">
-        <translate x="0" y="-5.0" z="0"/>
-        <rotate angle_x="45" angle_y="0" angle_z="0"/>
-        <scale x="0.5" y="0.5" z="0.5"/>
+      <keyframe instant="19">
+        <translate x="0" y="0.0" z="0"/>
+        <rotate angle_x="0" angle_y="0" angle_z="0"/>
+        <scale x="1" y="1" z="1"/>
       </keyframe>
     </animation>
   </animations>
@@ -179,6 +230,28 @@
     <primitive id="cheese_ball">
       <sphere radius="0.5" slices="15" stacks="15"/>
     </primitive>
+      <primitive id="plane">
+      <plane npartsU="2" npartsV="2"/>
+    </primitive>
+    <primitive id="leg">
+      <cylinder2 slices="20" stacks="5" height="8" base="0.25" top="0.25"/>
+    </primitive>
+    <primitive id="patch">
+      <patch npointsU="3" npointsV="4" npartsU="20" npartsV="20">
+        <controlpoint xx="-2.0" yy="-2.0" zz="1.0"/>
+        <controlpoint xx="-2.0" yy="-1.0" zz="-2.0"/>
+        <controlpoint xx="-2.0" yy="1.0" zz="5.0"/>
+        <controlpoint xx="-2.0" yy="2.0" zz="-1.0"/>
+        <controlpoint xx="0" yy="-2.0" zz="0"/>
+        <controlpoint xx="0" yy="-1.0" zz="-1.0"/>
+        <controlpoint xx="0" yy="1.0" zz="1.5"/>
+        <controlpoint xx="0" yy="2.0" zz="0"/>
+        <controlpoint xx="2.0" yy="-2.0" zz="-1.0"/>
+        <controlpoint xx="2.0" yy="-1.0" zz="2.0"/>
+        <controlpoint xx="2.0" yy="1.0" zz="-5.0"/>
+        <controlpoint xx="2.0" yy="2.0" zz="1.0"/>
+      </patch>
+    </primitive>
   </primitives>
 
   <components>
@@ -186,17 +259,137 @@
       <transformation>
         <scale x="0.4" y="0.4" z="0.4"/>
       </transformation>
-     <animationref id="teste1" />
+     <animationref id="full" />
       <materials>
         <material id="demoMaterial"/>
       </materials>
       <texture id="none"/>
       <children>
+        <componentref id="floor" />
+        <componentref id="table" />
+        <componentref id="receipt" />
         <componentref id="tray"/>
         <componentref id="onion_rings_plate"/>
         <componentref id="drink"/>
         <componentref id="napkins"/>
         <componentref id="cheese_balls_cup"/>
+      </children>
+    </component>
+
+    <component id="floor">
+      <transformation>
+        <translate x="-20" y="-25" z="0"/>
+        <scale x="300" y="1" z="250"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="floor" length_s="1" length_t="1"/>
+      <children>
+        <primitiveref id="plane" />
+      </children>
+    </component>
+
+    <component id="table">
+      <transformation>
+        <translate x="0" y="-0.3" z="-10.0"/>
+        <scale x="45" y="30.25" z="45"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="table" length_s="2" length_t="2"/>
+      <children>
+        <primitiveref id="plane" />
+        <componentref id="table_legs" />
+      </children>
+    </component>
+
+     <component id="table_legs">
+      <transformation>
+        <scale x="0.1" y="0.1" z="0.1"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="table" length_s="1" length_t="1"/>
+      <children>
+        <componentref id="leg1" />
+        <componentref id="leg2" />
+        <componentref id="leg3" />
+        <componentref id="leg4" />
+      </children>
+    </component>
+
+    <component id="leg1">
+      <transformation>
+        <translate x="4.5" y="-8" z="4"/>
+        <rotate axis="x" angle="-90"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="inherit" />
+      <children>
+        <primitiveref id="leg" />
+      </children>
+    </component>
+
+    <component id="leg2">
+      <transformation>
+        <translate x="-4.5" y="-8" z="4"/>
+        <rotate axis="x" angle="-90"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="inherit" />
+      <children>
+        <primitiveref id="leg" />
+      </children>
+    </component>
+
+    <component id="leg3">
+      <transformation>
+        <translate x="4.5" y="-8" z="-4"/>
+        <rotate axis="x" angle="-90"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="inherit" />
+      <children>
+        <primitiveref id="leg" />
+      </children>
+    </component>
+
+    <component id="leg4">
+      <transformation>
+        <translate x="-4.5" y="-8" z="-4"/>
+        <rotate axis="x" angle="-90"/>
+      </transformation>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="inherit" />
+      <children>
+        <primitiveref id="leg" />
+      </children>
+    </component>
+
+    <component id="receipt">
+      <transformation>
+        <translate x="-15" y="1.5" z="3.8"/>
+        <rotate axis="x" angle="-95"/>
+        <rotate axis="y" angle="-20"/>
+      </transformation>
+      <animationref id = "receipt"/>
+      <materials>
+        <material id="temp"/>
+      </materials>
+      <texture id="receipt" length_s="2" length_t="2"/>
+      <children>
+        <primitiveref id="patch" />
       </children>
     </component>
 
@@ -293,7 +486,8 @@
     </component>
 
     <component id="tray_part">
-      <transformation></transformation>
+      <transformation>
+      </transformation>
       <materials>
         <material id="inherit"/>
       </materials>
@@ -401,6 +595,7 @@
       <transformation>
         <transformationref id="plate_pos"/>
       </transformation>
+      <animationref id="many" />
       <materials>
         <material id="food"/>
       </materials>
@@ -564,7 +759,6 @@
         <translate x="8" y="0" z="-4"/>
         <rotate axis="x" angle="-90"/>
       </transformation>
-      <animationref id = "teste2"/>
       <materials>
         <material id="plastic"/>
       </materials>
@@ -620,6 +814,7 @@
         <translate x="-12" y="0" z="-4"/>
         <rotate axis="x" angle="-90"/>
       </transformation>
+      <animationref id="many" />
       <materials>
         <material id="plastic"/>
       </materials>

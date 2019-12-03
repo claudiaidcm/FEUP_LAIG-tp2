@@ -26,7 +26,6 @@ class MyRectangle extends CGFobject {
 			this.x1, this.y2, 0,	//2
 			this.x2, this.y2, 0		//3
 		];
-
 		//Counter-clockwise reference of vertices
 		this.indices = [
 			0, 1, 2,

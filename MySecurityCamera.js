@@ -1,31 +1,28 @@
+/**
+ * MySecurityCamera
+ * @constructor
+ * @param {XMLScene} scene - reference to MyScene object
+ */
 
 class MySecurityCamera extends CGFobject {
-	constructor(scene) {
-		super(scene);
-		
-        this.newView = new MyReverseRectangle(scene, 0, 1, 1, 0);
-        //this.cameraB;
+    constructor(scene) {
+        super(scene);
 
-        this.shader = new CGFshader(this.scene.gl, "MySecurityCamera.vert", "MySecurityCamera.frag");
-        this.shader.setUniformsValues({uSampler: 0 });
-        this.shader.setUniformsValues({h_res: this.scene.gl.canvas.width});
-        this.shader.setUniformsValues({v_res: this.scene.gl.canvas.heigth});
-        
-		this.initBuffers();
+        this.securCam = new MyRectangle(this.scene, 0.5, 1, -1, -0.5);
+        this.shader = new CGFshader(this.scene.gl, "/shaders/secCam.vert", "/shaders/secCam.frag");
     }
-    
-	 updateTime(t){
-        this.shader.setUniformsValues({ timeS: t / 100 % 1000});
-        //console.log("timeS: " + t / 10 % 1000)
+
+    updateTimeFactor(currentTime) {
+        this.shader.setUniformsValues({ timeFactor: currentTime });
     }
-	
-    
+
     display() {
-
-       this.scene.setActiveShader(this.shader);     // activate selected shader
-       this.scene.pushMatrix();
-       this.scene.securityView.bind(0);              // bind RTTtexture
-       this.newView.display();                 //display retangle
-       this.scene.popMatrix();
+        this.scene.setActiveShader(this.shader);
+        this.scene.pushMatrix();
+        this.scene.secCamTexture.bind(0);
+        this.securCam.display();
+        this.scene.popMatrix();
+        this.scene.setActiveShader(this.scene.defaultShader);
     }
+
 }

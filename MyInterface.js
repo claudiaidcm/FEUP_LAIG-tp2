@@ -42,24 +42,12 @@ class MyInterface extends CGFinterface {
 
 
     //add cameras to user interface
-    addCameras(cameras) {
-        var scene = this.scene;
+    addCameras() {
+        this.gui.add(this.scene, 'cameraId', this.scene.viewIds).onChange(
+            this.scene.updateCamera.bind(this.scene)).name('Camera');
 
-        //save ids of all the cameras defined
-        var id = [];
-        for (var key in cameras)
-            id.push(key);
-
-
-        //add menu to choose camera and change cameras acording to choice
-        this.interCamera = this.gui.add(this.scene, 'camera', id).name("Camera").onChange(
-            value => scene.updateCamera(value));
-
-        this.secondaryCamera = this.gui.add(this.scene, 'securitycamera', id).name("Security Camera").onChange(
-            value => scene.updateSecurityCamera(value));
-
-        //set the default view
-        scene.updateCamera(scene.graph.defaultView);
+        this.gui.add(this.scene, 'secCameraId', this.scene.viewIds).onChange(
+            this.scene.updateSecCamera.bind(this.scene)).name('Security Camera');
     }
 
     /**

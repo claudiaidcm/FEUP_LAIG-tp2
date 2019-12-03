@@ -14,14 +14,14 @@ class XMLscene extends CGFscene {
         this.interface = myinterface;
 
         this.displayAxis = true;
-        this.lightsInfo = {};
-        this.camera;
-        this.securitycamera;
+
         this.numMaterial = 0;
+
+        this.lightsInfo = {};
+
         this.lastTime = -1;
         this.deltaTime;
         this.firstTime = 0;
-
     }
 
     /**
@@ -33,7 +33,8 @@ class XMLscene extends CGFscene {
 
         this.sceneInited = false;
 
-        this.initCameras();
+        this.secCamTexture = new CGFtextureRTT(this, this.gl.canvas.width, this.gl.canvas.height);
+        this.secCameraObj = new MySecurityCamera(this);
 
         this.enableTextures(true);
 
@@ -45,41 +46,45 @@ class XMLscene extends CGFscene {
         this.axis = new CGFaxis(this);
         this.setUpdatePeriod(100);
 
-        this.firstTime = Date.now();
-
-        this.securityCamera = new MySecurityCamera(this);         //create retangle object
-        this.securityView = new CGFtextureRTT(this,  this.gl.canvas.width, this.gl.canvas.height); //create render-to-texture texture
     }
 
     /**
      * Initializes the scene cameras.
      */
     initCameras() {
-        this.camera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(15, 15, 15), vec3.fromValues(0, 0, 0));
-        this.securitycamera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(15, 15, 15), vec3.fromValues(0, 0, 0));
-    }
+        //Choose the camera with the appropriate default ID in case it exists.
+        this.viewIds = [];
+        this.cameras = [];
 
-    updateCamera(newCamera) {
-        this.camera = newCamera;
+        for (var key in this.graph.views) {
+            var view = this.graph.views[key];
+            if (view[0] == "perspective")
+                this.cameras[key] = new CGFcamera(view[1], view[2], view[3], view[4], view[5]);
+            else if (view[0] == "ortho")
+                this.cameras[key] = new CGFcameraOrtho(view[1], view[2], view[3], view[4], view[5], view[6], view[7], view[8], view[9]);
 
-        if (this.graph.views[newCamera][0] == "perspective")
-            this.camera = new CGFcamera(this.graph.views[newCamera][1], this.graph.views[newCamera][2], this.graph.views[newCamera][3], this.graph.views[newCamera][4], this.graph.views[newCamera][5]);
-        else if (this.graph.views[newCamera][0] == "ortho")
-            this.camera = new CGFcameraOrtho(this.graph.views[newCamera][1], this.graph.views[newCamera][2], this.graph.views[newCamera][3], this.graph.views[newCamera][4], this.graph.views[newCamera][5], this.graph.views[newCamera][6], this.graph.views[newCamera][7], this.graph.views[newCamera][8], this.graph.views[newCamera][9]);
+            this.viewIds.push(key);
 
+            if (key == this.graph.defaultView) {
+                this.cameraId = key;
+                this.secCameraId = key;
+            }
+        }
+
+        this.camera = this.cameras[this.cameraId];
+        this.secCamera = this.cameras[this.secCameraId];
         this.interface.setActiveCamera(this.camera);
     }
 
-    updateSecurityCamera(newCamera) {
-        this.securitycamera = newCamera;
-
-        if (this.graph.views[newCamera][0] == "perspective")
-            this.securitycamera = new CGFcamera(this.graph.views[newCamera][1], this.graph.views[newCamera][2], this.graph.views[newCamera][3], this.graph.views[newCamera][4], this.graph.views[newCamera][5]);
-        else if (this.graph.views[newCamera][0] == "ortho")
-            this.securitycamera = new CGFcameraOrtho(this.graph.views[newCamera][1], this.graph.views[newCamera][2], this.graph.views[newCamera][3], this.graph.views[newCamera][4], this.graph.views[newCamera][5], this.graph.views[newCamera][6], this.graph.views[newCamera][7], this.graph.views[newCamera][8], this.graph.views[newCamera][9]);
-
-        this.interface.setActiveCamera(this.securitycamera);
+    updateCamera() {
+        this.camera = this.cameras[this.cameraId];
+        this.interface.setActiveCamera(this.camera);
     }
+
+    updateSecCamera() {
+        this.secCamera = this.cameras[this.secCameraId];
+    }
+
 
     /**
      * Initializes the scene lights with the values read from the XML file.
@@ -124,9 +129,9 @@ class XMLscene extends CGFscene {
     }
 
     update(currentTime) {
-        if( this.firstTime == 0)
+        if (this.firstTime == 0)
             this.firstTime = currentTime;
-        
+
         if (this.lastTime == -1)
             this.deltaTime = 0;
         else
@@ -136,10 +141,9 @@ class XMLscene extends CGFscene {
             this.graph.animations[key].update(this.deltaTime);
         }
 
-        this.lastTime = currentTime;
+        this.secCameraObj.updateTimeFactor(currentTime / 400 % 1000);
 
-        let timeFactor = this.deltaTime / 100 % 1000;
-        this.securityCamera.updateTime(timeFactor);
+        this.lastTime = currentTime;
     }
 
     setDefaultAppearance() {
@@ -156,49 +160,45 @@ class XMLscene extends CGFscene {
         this.axis = new CGFaxis(this, this.graph.referenceLength);
 
         this.gl.clearColor(this.graph.background[0], this.graph.background[1], this.graph.background[2], this.graph.background[3]);
-
         this.setGlobalAmbientLight(this.graph.ambient[0], this.graph.ambient[1], this.graph.ambient[2], this.graph.ambient[3]);
 
-        this.initLights();
-
-        this.interface.addLights(this.graph.lights);
-
+        this.initCameras();
         this.interface.addCameras(this.graph.views);
+
+        this.initLights();
+        this.interface.addLights(this.graph.lights);
 
         this.sceneInited = true;
     }
 
 
-    display(){
+    /**
+     * Displays the scene.
+     */
+    display() {
+        if (this.sceneInited) {
+            this.secCamTexture.attachToFrameBuffer();
+            this.render(this.cameras[this.secCameraId]);
+            this.secCamTexture.detachFromFrameBuffer();
+            this.render(this.cameras[this.cameraId]);
 
-
-
-
-
-        //renders main scene to be applied in securityCamera
-        this.render(this.selectedCamera);
-
-
-
-        //renders scene 
-        this.securityView.attachToFrameBuffer();
-        this.render(this.defaultCamera);
-        this.securityView.detachFromFrameBuffer();
-
-        //displays securityCamera and applies shasders propperties
-        this.gl.disable(this.gl.DEPTH_TEST);
-        this.securityCamera.display();
-        this.gl.enable(this.gl.DEPTH_TEST); 
-
-        this.setActiveShader(this.defaultShader); //restores default shader
+            this.gl.disable(this.gl.DEPTH_TEST);
+            this.secCameraObj.display();
+            this.gl.enable(this.gl.DEPTH_TEST);
+        }
     }
 
-    render(cami) {
+    render(camera) {
         // ---- BEGIN Background, camera and axis setup
 
         // Clear image and depth buffer everytime we update the scene
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+
+        this.camera = camera;
+
+        this.interface.setActiveCamera(camera);
 
         // Initialize Model-View matrix as identity (no transformation
         this.updateProjectionMatrix();
@@ -228,14 +228,11 @@ class XMLscene extends CGFscene {
             i++;
         }
 
-        this.pushMatrix();
 
         if (this.sceneInited) {
             // Displays the scene (MySceneGraph function).
             this.graph.displayScene();
         }
-
-        this.popMatrix();
         // ---- END Background, camera and axis setup
     }
 }
